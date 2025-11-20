@@ -43,3 +43,35 @@ Best prompting practices:
 - For more general prompts (not constrained to a specific task that requires strict output), we want to avoid imposing specific restrictions on model output.
 - Avoid repeating things; be a bit more concise with our prompt
 - Use meta-prompting if applicable; this is a more abstract way of prompting that essentially encourages the model to prompt itself by asking questions. E.g. check your own understanding after each investigation
+
+## Multi-Agent Framework Development Guidelines
+
+This repository serves as a template for building SaaS products with multiple specialized AI agents. When creating prompts and templates:
+
+### Template Creation
+- Use [square brackets] for placeholder content that will vary by project
+- Example: `[Describe the authentication flow here]` instead of specific implementation details
+- Templates should guide agents on WHAT to write, not provide pre-written content
+
+### Avoid Overengineering
+- Keep prompts clean, readable, and thorough without unnecessary complexity
+- Avoid including:
+  - Code snippets that would vary by project
+  - Pointless boilerplate text
+  - Project-specific details that don't apply generally
+  - Excessive examples that clutter the template
+- Focus on principles and processes, not prescriptive content
+
+### Workflow Adaptation
+- Base new multi-agent workflows on existing ones in `workflow_prompts/`
+- These workflows are proven and tested from the one-agent system
+- Adapt them for multi-agent coordination while preserving their core effectiveness
+- Add collaboration touchpoints but maintain workflow efficiency
+
+### Framework Philosophy
+The framework solves three key problems:
+1. **Lack of Direction**: PM maintains backlog/sprint with clear tasks
+2. **Context Management**: 3-level memory (project → story → task)
+3. **Quality Control**: Mandatory code review, curated lessons, documented ownership
+
+Agents should spend 90% of time coding, 10% on coordination. Communicate only when blocked or decisions are needed.

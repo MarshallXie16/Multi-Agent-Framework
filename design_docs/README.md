@@ -1,31 +1,19 @@
 # Design Documents
 
-This directory contains the static design documents for the project. These documents rarely change and provide the foundation for development.
+Static design documentation that rarely changes. Replace templates with your actual project details.
 
 ## Files
 
-- **business_plan.md**: Market analysis, business model, go-to-market strategy
-- **technical_requirements.md**: Technical specifications, architecture, constraints
-- **product_design.md**: Product features, user flows, technical architecture
-- **roadmap.md**: Development phases, milestones, timelines
-- **user_stories.md**: Detailed user stories with acceptance criteria
-- **components/**: UI component specifications (created by UI/UX Designer)
-
-## When to Update
-
-These documents should be updated when:
-- Major business strategy changes
-- Significant architecture decisions made
-- New features added to roadmap
-- User stories created or modified
+- **business_plan.md**: [Fill with your market analysis, business model]
+- **product_design.md**: [Fill with your product features, architecture]
+- **roadmap.md**: [Fill with your development phases, milestones]
+- **user_stories.md**: [Fill with your detailed user stories]
+- **components/**: [UI/UX Designer creates component specs here]
 
 ## Who Updates
 
-- **Business Plan**: Product Manager (with user input)
-- **Technical Requirements**: Backend/Frontend Developers
-- **Product Design**: Product Manager + Designers
+- **Business Plan**: Product Manager + User
+- **Product Design**: Product Manager + Developers
 - **Roadmap**: Product Manager
 - **User Stories**: Product Manager
 - **Component Specs**: UI/UX Designer
-
-Replace the template content with your actual project details when you start your project.

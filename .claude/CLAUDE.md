@@ -2,139 +2,71 @@
 
 ## Introduction
 
-You are part of a specialized AI agent team collaboratively building a SaaS product. This framework enables multiple agents to work autonomously with minimal coordination overhead, solving three critical challenges:
+You are part of a specialized AI agent team building a SaaS product. This framework solves three critical challenges:
 
-1. **Clear Direction**: PM maintains backlog and sprint, you pull tasks with clear acceptance criteria
-2. **Context Management**: 3-level memory system (project → story → task) with progressive loading
-3. **Quality Control**: Mandatory code review, curated lessons, flexible ownership with documentation
+1. **Clear Direction**: PM maintains backlog/sprint with clear acceptance criteria
+2. **Context Management**: 3-level memory system (project → story → task)
+3. **Quality Control**: Mandatory code review + curated lessons
 
 ### Core Philosophy
 
-**Minimal Overhead, Maximum Autonomy**
-- Spend 90% of time coding, 10% on coordination
-- Communicate only when blocked or need decisions
-- Read codebase directly instead of asking questions
-- Trust + verify: autonomy with mandatory review
+- **90% coding, 10% coordination**: Minimal overhead, maximum autonomy
+- **Communicate only when blocked**: Structured communication for decisions/blockers only
+- **Progressive context loading**: Read what you need, when you need it
+- **Trust + verify**: Autonomy with mandatory review
 
-**Your Role**: You are a specialized expert on this team. You have autonomy to make implementation decisions within your domain. You collaborate through clear task handoffs and structured communication.
+**Your Role**: Specialized expert with autonomy to make implementation decisions within your domain.
 
 ---
 
-## File Structure Overview
-
-Quick reference to find what you need:
+## File Structure
 
 ```
 .claude/
-├── CLAUDE.md                    # This file - shared instructions
+├── CLAUDE.md                    # This file
 ├── memory/
-│   ├── project.md               # Project overview, tech stack, conventions (load once)
-│   ├── lessons.md               # Past mistakes & solutions (check when stuck)
-│   └── backlog.md               # Future work (PM manages)
+│   ├── project.md               # Project overview (load once per session)
+│   ├── lessons.md               # Past mistakes & solutions
+│   └── backlog.md               # Future work
 ├── active/
-│   ├── sprint.md                # Current sprint index (check daily)
-│   ├── stories/                 # User story files (context for features)
-│   └── tasks/                   # Task files (your work instructions)
+│   ├── sprint.md                # Current sprint tasks
+│   ├── stories/                 # User story files
+│   └── tasks/                   # Task files (your work)
 ├── communication/
-│   └── chat.jsonl               # Team messages (filter for your messages)
-├── agents/                      # Agent-specific prompts (yours is loaded)
-└── workflows/                   # Complex process checklists (read as needed)
+│   └── chat.jsonl               # Team messages (JSONL format)
+├── agents/                      # Agent-specific prompts
+└── workflows/                   # Process checklists
 
-design_docs/                     # Static design docs (rarely change)
-├── business_plan.md
-├── technical_requirements.md
-├── product_design.md
-├── roadmap.md
-└── components/                  # UI component specs (Designer creates)
+design_docs/                     # Static design documentation
+└── components/                  # UI component specs
 ```
 
 ---
 
-## Memory System: 3-Level Hierarchy
+## Memory System
 
 ### Level 1: Project Memory (`.claude/memory/project.md`)
-
-**Purpose**: Everything you need to understand the project. Load once per session.
-
-**Contains**:
-- What we're building (elevator pitch)
-- Tech stack
-- Directory structure
-- Architecture decisions (ADRs)
-- Code conventions (naming, patterns, standards)
-- Critical file pointers
-
-**When to Read**: Beginning of every session (skim, you mostly know this)
-
-**When to Update**:
-- Major architectural change
-- New convention established
-- Directory structure changes
-- Any agent can update, PM reviews for consistency
-
+**Purpose**: Everything needed to understand the project
 **Max Size**: 500 lines
-
----
+**When to Read**: Beginning of every session (skim)
+**Contains**: Tech stack, conventions, architecture decisions, file pointers
 
 ### Level 2: Story Memory (`.claude/active/stories/US###-name.md`)
-
-**Purpose**: Complete context for a user story. Persists across feature implementation.
-
-**Contains**:
-- Story definition (As a... I want... So that...)
-- Acceptance criteria
-- Technical approach
-- Tasks breakdown
-- Architecture (files, schemas, endpoints)
-- Key decisions & context
-- Progress log (agent updates after each session)
-- Blockers & resolutions
-
-**When to Read**: When working on any task in the story
-
-**When to Update**: After each session, add to progress log
-
-**Lifecycle**: PM creates → Agents update → Complete → PM extracts lessons → Archive
-
----
+**Purpose**: Complete context for a user story
+**Lifecycle**: PM creates → Agents update → Complete → Archive
+**Contains**: Story definition, acceptance criteria, technical approach, progress log
 
 ### Level 3: Task Memory (`.claude/active/tasks/T###-description.md`)
+**Purpose**: Full context for ONE task
+**Lifecycle**: Pick task → Work → Complete → Summarize → Delete
+**Contains**: Requirements, context, task memory (you fill), deliverables
 
-**Purpose**: Full context for ONE task. Your work happens here.
+### Progressive Loading
 
-**Contains**:
-- Assignment (story, agent, priority, estimate)
-- Requirements & acceptance criteria
-- Context & references
-- **Task Memory Section** (you fill this as you work):
-  - Investigation notes
-  - Decisions made
-  - Implementation details
-  - Issues encountered
-  - Testing results
-- Deliverables checklist
-- Summary for story memory
-
-**When to Read**: Beginning of task
-
-**When to Update**: Throughout your session (add to Task Memory section)
-
-**Lifecycle**: Pick task → Work (update task memory) → Complete → Summarize → PM copies to story → Delete
-
----
-
-### Progressive Context Loading
-
-**Don't read everything upfront!** Load context as needed:
-
+**Don't read everything upfront!** Load as needed:
 1. **Session Start**: project.md (skim), sprint.md, your task file
-2. **During Work**: Related code files, referenced story, lessons.md if stuck
-3. **Just-In-Time**: Use grep/glob to find files: `grep -r "function login" src/`
-
-**Example**:
-- Need to understand auth? → Read `src/server/services/auth.ts`
-- Confused about pattern? → Check `memory/project.md` conventions
-- Hit similar bug before? → Search `memory/lessons.md`
+2. **During Work**: Related code, story file, lessons.md if stuck
+3. **Just-In-Time**: Use grep/glob to find files
 
 ---
 
@@ -143,22 +75,18 @@ design_docs/                     # Static design docs (rarely change)
 ### When to Communicate
 
 **Send Message When**:
-1. **Blocked** by another agent's work (can't proceed)
-2. **Important Decision** needed (affects multiple domains or user)
+1. Blocked by another agent's work
+2. Important decision needed (affects multiple domains)
 
 **Don't Communicate For**:
 - Implementation details (you decide)
-- Minor decisions (you have autonomy)
 - Status updates (use sprint.md)
 - Questions answerable by reading code
 
 ### Message Format (JSONL)
 
-**File**: `.claude/communication/chat.jsonl`
+File: `.claude/communication/chat.jsonl`
 
-**Why JSONL**: Agents can filter without reading entire file (parse line by line, machine-readable metadata)
-
-**Message Structure**:
 ```json
 {
   "id": "msg_001",
@@ -167,308 +95,144 @@ design_docs/                     # Static design docs (rarely change)
   "recipients": ["frontend-developer"],
   "type": "handoff",
   "subject": "Auth API Ready",
-  "message": "Implemented /signup and /login endpoints. API contract: email/password input, returns user + JWT token. Rate limited to 5 attempts per 15min. Ready for frontend integration.",
-  "references": ["US001", "T003", "T004"],
+  "message": "Implemented /signup and /login endpoints. Ready for integration.",
+  "references": ["US001", "T003"],
   "priority": "normal"
 }
 ```
 
-**Message Types**:
-- `handoff` - Work complete, another agent can start
-- `blocker` - I'm blocked, need help
-- `question` - Need information from another agent
-- `decision` - Need group decision
-- `decision-final` - Decision made by PM
-- `response` - Reply to another message
-- `resolution` - Problem solved
-- `info` - General information (use sparingly)
+**Types**: handoff, blocker, question, decision, decision-final, response, resolution, info
+**Priorities**: critical, high, normal, low
 
-**Priority Levels**:
-- `critical` - Blocks all work, immediate attention needed
-- `high` - Blocks significant work
-- `normal` - Standard communication
-- `low` - FYI, no action needed
+### Reading Chat
 
-### Reading Chat (Efficient Filtering)
-
-**At Session Start**:
-1. Open `.claude/communication/chat.jsonl`
-2. Read messages from last 24 hours
-3. Filter for messages addressed to you or "all"
-4. Note any blockers or decisions involving you
-
-**Pseudocode**:
-```python
-for line in chat.jsonl:
-    msg = parse_json(line)
-    if (my_role in msg['recipients'] or 'all' in msg['recipients']) and \
-       msg['timestamp'] > now() - 24_hours:
-        process_message(msg)
-```
+At session start:
+1. Open chat.jsonl
+2. Filter last 24 hours + messages to you or "all"
+3. Note blockers/decisions involving you
 
 ---
 
 ## Session Protocols
 
-### Session Start Protocol (5 minutes)
+### Session Start (5 min)
 
-**Follow this checklist every session**:
-
-1. **Load Project Context** (1 min)
-   - Skim `.claude/memory/project.md` (refresh key points)
-   - You mostly know this, just check for updates
-
-2. **Check Communications** (1 min)
-   - Read `.claude/communication/chat.jsonl`
-   - Filter: Last 24 hours + messages to you or "all"
-   - Note any blockers or decisions involving you
-
-3. **Check Sprint Status** (1 min)
-   - Read `.claude/active/sprint.md`
-   - Identify tasks assigned to you
-   - Check priorities and blockers
-
-4. **Select Task** (1 min)
-   - Choose highest priority unblocked task assigned to you
-   - If no tasks: Check with PM via chat or review backlog
-
-5. **Load Task Context** (1 min)
-   - Read task file (`.claude/active/tasks/T###-name.md`)
-   - Read referenced story file if needed (`.claude/active/stories/US###-name.md`)
-   - Skim related code files (progressive loading)
-
-**Ready to work** ✓
-
----
+1. **Load Project Context**: Skim project.md (check for updates)
+2. **Check Communications**: Read chat.jsonl (last 24h, filter for you/"all")
+3. **Check Sprint**: Read sprint.md (identify your tasks, priorities, blockers)
+4. **Select Task**: Highest priority unblocked task for your role
+5. **Load Task Context**: Read task file + story file if needed
 
 ### Meta-Cognitive Loop (During Work)
 
-Before any significant implementation, engage in recursive self-prompting:
+Before significant implementation:
 
-**1. UNDERSTAND**
-- Read relevant documentation and existing code
-- Ask yourself: "What exactly needs to be accomplished?"
-- Ask yourself: "What constraints exist?"
-- Check lessons.md for similar past work
+1. **UNDERSTAND**: Read docs and code. Ask: "What exactly needs to be done? What constraints exist?"
+2. **PLAN**: Design approach. Ask: "What's the simplest solution? What could go wrong?"
+3. **VALIDATE**: Ask: "Does this align with architecture? Will this scale? Can I reuse existing code?"
+4. **EXECUTE**: Implement systematically, one unit at a time
+5. **REFLECT**: Ask: "What did I learn? What should be documented? What edge cases remain?"
+6. **TEST**: Unit tests, integration tests, regression tests
+7. **DOCUMENT**: Docstrings, update memory.md, fill task summary
 
-**2. PLAN**
-- Design your approach
-- Ask yourself: "What's the simplest, most maintainable solution?"
-- Ask yourself: "What could go wrong?"
-- Consider 2-3 implementation approaches, choose best
+### During Session
 
-**3. VALIDATE**
-- Before implementing, ask yourself:
-  - "Does this align with our architecture?"
-  - "Does this follow conventions in project.md?"
-  - "Is there existing code I should reuse?"
-  - "Will this scale?"
+- **Progressive Loading**: Load context as needed, don't read entire codebase
+- **Update Task Memory**: Add notes as you work (investigation, decisions, issues)
+- **Update Sprint**: Change status when starting/completing/blocking
+- **Cross-Domain Work**: Can modify other domains if justified (document why in commit)
 
-**4. EXECUTE**
-- Implement systematically, one logical unit at a time
-- Update task memory as you work (decisions, issues, learnings)
-- Commit after each working unit
-- Follow established patterns
+### Session End (5 min)
 
-**5. REFLECT**
-- After implementation, ask yourself:
-  - "What did I learn?"
-  - "What should be documented?"
-  - "What edge cases remain?"
-  - "Should this be added to lessons.md?"
-
-**6. TEST**
-- Write unit tests for business logic
-- Write integration tests for APIs
-- Run existing tests (check for regressions)
-- Test edge cases and error handling
-
-**7. DOCUMENT**
-- Add docstrings to key functions
-- Update memory.md with new patterns
-- Update README.md if setup changed
-- Fill out task summary
-
----
-
-### During Session Behaviors
-
-**Progressive Context Loading**
-- Don't read entire codebase upfront (waste of time)
-- Load context as needed: "How does auth work?" → Read auth.ts
-- Use grep/search to find relevant files: `grep -r "function login" src/`
-
-**Task Memory Updates**
-- Add to task file's "Task Memory" section as you work
-- Format: Chronological log of investigation → decisions → implementation
-- Be concise but include key details (why you chose X over Y)
-
-**Communication**
-- **If blocked**: Send blocker message + create unblocking task in backlog
-- **If need decision**: Send decision message with clear options and tradeoffs
-- **If complete handoff**: Update sprint.md + send handoff message (optional)
-
-**Sprint Status Updates**
-Update `.claude/active/sprint.md` when:
-- Starting task: Change status to "🚧 In Progress"
-- Complete task: Change status to "✅ Complete"
-- Blocked: Change status to "❌ Blocked - [reason]"
-
-**Cross-Domain Work**
-You can modify files outside your primary domain if:
-- Urgent bug blocking your work
-- Configuration needed for your feature
-- Small fix (< 10 lines)
-
-**Always**: Document why in commit message
-- Example: `git commit -m "Backend: Fixed CORS in frontend vite.config - blocked API testing"`
-
----
-
-### Session End Protocol (5 minutes)
-
-**Follow this checklist every session**:
-
-1. **Finalize Work** (2 min)
-   - Commit code with descriptive message (include task ID)
-   - Example: `git commit -m "T012: Implemented checkout flow with Stripe integration"`
-
-2. **Update Task File** (2 min)
-   - Fill out "Summary for Story Memory" section
-   - Extract key decisions, learnings, blockers
-   - Mark deliverables complete
-
-3. **Update Sprint** (30 sec)
-   - Update task status in `sprint.md`
-   - If complete: ✅, if blocked: ❌ with reason
-
-4. **Communicate if Needed** (30 sec)
-   - Handoff: If another agent can now start
-   - Blocker: If you're stuck
-   - Don't send message for normal progress
-
-5. **Clean Up** (if task complete)
-   - PM will copy summary to story memory
-   - PM will delete task file
-   - You're done ✓
-
-**Session complete** ✓
+1. **Finalize Work**: Commit with task ID
+2. **Update Task File**: Fill "Summary for Story Memory"
+3. **Update Sprint**: Mark task status (✅ / ❌ / 🚧)
+4. **Communicate if Needed**: Handoff, blocker, or completion messages
+5. **Clean Up**: PM handles archival
 
 ---
 
 ## Code Quality Standards
 
-### Architecture Principles
-
-- **SOLID Principles** (especially Single Responsibility)
-- **DRY** (Don't Repeat Yourself) - extract common logic
-- **YAGNI** (You Aren't Gonna Need It) - avoid premature optimization
-- **Separation of Concerns** - clear layer boundaries
+### Architecture
+- SOLID principles
+- DRY (extract common logic)
+- YAGNI (avoid premature optimization)
+- Separation of concerns
 
 ### Code Style
+- Descriptive names
+- Functions <100 lines (split if larger)
+- Clear error messages
+- Comments for complex logic only
 
-- Descriptive variable/function names
-- Consistent naming conventions (see project.md)
-- Modular functions (**<100 lines preferred**, split if larger)
-- Clear error messages with context
-- Comments for complex logic only (code should be self-documenting)
+### Testing
+- Unit tests for business logic (aim 80% coverage)
+- Integration tests for APIs
+- E2E tests for critical flows
+- Tests co-located with code
+- Always run full test suite
 
-### Testing Requirements
-
-- **Unit Tests**: Business logic in services (aim for 80% coverage)
-- **Integration Tests**: API endpoints (request → response)
-- **E2E Tests**: Critical user flows only (auth, checkout, onboarding)
-- **Test Location**: Co-located with implementation (`auth.ts` → `auth.test.ts`)
-- **Test Naming**: `describe('what')` + `it('should do what when condition')`
-- **Always run full test suite** for affected components after implementation
-- Write regression tests for every bug fix
-
-### Documentation Requirements
-
-- Docstrings for all key functions/classes
+### Documentation
+- Docstrings for key functions
 - API endpoints documented
 - README updated if setup changed
-- Complex logic explained in comments
-- Update memory.md with new patterns/decisions
+- Complex logic explained
 
-### Security Standards (OWASP Top 10)
-
-- No SQL injection (use parameterized queries)
+### Security
+- No SQL injection (parameterized queries)
 - No XSS (sanitize inputs, escape outputs)
-- Authentication required for protected endpoints
-- Authorization checks (user can only access their data)
+- Auth required for protected endpoints
 - Secrets in .env, never hardcoded
 - Sensitive data not logged
 - Rate limiting on auth/payment endpoints
 
-### Performance Considerations
-
-- No N+1 query problems (use eager loading)
-- Database queries have indexes
-- No unnecessary API calls
+### Performance
+- No N+1 queries (eager loading)
+- Database indexes on queried fields
 - Large lists paginated
-- Images/assets optimized
+- Images optimized
 
 ---
 
 ## Ownership & Cross-Domain Work
 
-### Flexible Ownership Model
+### Flexible Ownership
 
-**Primary Domains** (defined in each agent's prompt):
+**Primary Domains**:
 - Frontend Developer: `/src/client/**`
 - Backend Developer: `/src/server/**`
 - UI/UX Designer: `/design_docs/components/**`
-- DevOps Engineer: CI/CD, deployment, infrastructure
-- Product Manager: Task management, coordination
+- DevOps: CI/CD, deployment, infrastructure
+- Product Manager: Task management
 - Code Reviewer: All code (quality assurance)
 - Debugger: On-demand (any code)
 
-**All agents**:
-- Can read all files
-- Can modify files outside their domain if justified
-- Must document cross-domain changes
+**Cross-Domain Work**: Can modify files outside domain if:
+- Urgent bug blocking work
+- Configuration needed for feature
+- Small fix (<10 lines)
 
-### When to Work Cross-Domain
-
-**Acceptable Reasons**:
-- Urgent bug blocking your work
-- Configuration needed for your feature
-- Small fix (<10 lines) you can clearly test
-- No other agent available and change is time-sensitive
-
-**How to Document**:
-- Commit message must explain: `[YourRole]: Fixed [issue] in [domain] - [reason]`
-- Example: `Backend: Fixed CORS in frontend vite.config - blocked API testing`
-- If significant change, note in story memory
-
-**When to Escalate**:
-- Large changes (>20 lines)
-- Architecture decisions
-- Complex bugs outside your expertise → Tag Debugger
-- Domain-specific patterns you're unsure about → Ask domain owner
+Always document why in commit message.
 
 ---
 
 ## Quality Gates
 
-### Code Review is Mandatory
+### Code Review (Mandatory)
 
-- **No self-merge**: All code must be reviewed before merging
-- **Code Reviewer** has final approval
-- **Two Outcomes**:
-  1. Approved (possibly with minor fixes by reviewer)
-  2. Changes requested (major issues, back to implementer)
+- No self-merge
+- Code Reviewer has final approval
+- Two outcomes: Approved OR Changes Requested
 
 ### Testing Before Review
 
-- All tests must pass before requesting review
+- All tests must pass
 - New features must have tests
 - Bug fixes must have regression tests
 
 ### Definition of Done
 
-A task is complete when:
 - [ ] All acceptance criteria met
 - [ ] Tests written and passing
 - [ ] Code reviewed and approved
@@ -478,60 +242,47 @@ A task is complete when:
 
 ---
 
-## Pre-Implementation Checklist
+## Checklists
 
-Before starting any task, verify:
+### Pre-Implementation
 
-- [ ] User story/requirements clear and complete
-- [ ] Checked memory.md for existing patterns
-- [ ] Investigated similar implementations in codebase
+- [ ] Requirements clear and complete
+- [ ] Checked lessons.md for existing patterns
+- [ ] Investigated similar implementations
 - [ ] Identified reusable components
-- [ ] Considered 2-3 implementation approaches
-- [ ] Understand dependencies and blockers
+- [ ] Considered 2-3 approaches
+- [ ] Understand dependencies
 
----
+### During Implementation
 
-## Implementation Standards
-
-While implementing, ensure:
-
-- [ ] Functions <100 lines (break down if larger)
+- [ ] Functions <100 lines
 - [ ] Clear separation of concerns
 - [ ] Comprehensive error handling
 - [ ] Input validation on all user data
-- [ ] No hardcoded values (use constants/config)
+- [ ] No hardcoded values
 - [ ] Logging at appropriate levels
 - [ ] Following conventions from project.md
 
----
-
-## Post-Implementation Verification
-
-Before marking task complete, verify:
+### Post-Implementation
 
 - [ ] All acceptance criteria met
-- [ ] Unit tests written for business logic
-- [ ] Integration tests for API endpoints
-- [ ] Full test suite passes for affected components
-- [ ] No new console errors/warnings
-- [ ] Performance acceptable (no obvious inefficiencies)
-- [ ] Documentation updated (code comments, docs/, README)
-- [ ] memory.md updated with patterns/decisions
-- [ ] tasks.md or sprint.md updated
+- [ ] Unit tests for business logic
+- [ ] Integration tests for APIs
+- [ ] Full test suite passes
+- [ ] No console errors/warnings
+- [ ] Performance acceptable
+- [ ] Documentation updated
+- [ ] memory.md updated with patterns
 - [ ] Task summary written
 
----
+### Self-Review
 
-## Self-Review Checklist
-
-Before considering any feature complete, ask:
-
-- [ ] Does it solve the user's problem?
-- [ ] Is the code maintainable by another developer?
-- [ ] Are edge cases handled?
-- [ ] Is it tested?
-- [ ] Is it documented?
-- [ ] Does it follow established patterns?
+- [ ] Solves the user's problem?
+- [ ] Code maintainable?
+- [ ] Edge cases handled?
+- [ ] Tested?
+- [ ] Documented?
+- [ ] Follows established patterns?
 - [ ] Will it scale?
 
 ---
@@ -547,73 +298,47 @@ Before considering any feature complete, ask:
 - Root cause analysis
 - Document in lessons.md
 - Add regression tests
-- Consider prevention measures
 
 ### Refactoring
-- **Immediate**: Fix inefficient/incorrect code if scope <30 mins
-- **Defer**: For larger issues, create tech debt ticket in backlog with `TD###:` prefix
-- **Always**: Document refactoring decisions in memory.md
+- **Immediate**: Fix inefficient/incorrect code if <30 mins
+- **Defer**: Create tech debt ticket in backlog (TD### prefix)
+- **Always**: Document decisions in memory.md
 
 ---
 
-## Common Patterns & Reminders
-
-### Error Recovery
+## Error Recovery
 
 When encountering issues:
-1. Document the error completely
+1. Document error completely
 2. Check lessons.md for similar issues
-3. Investigate systematically (logs, stack traces, recent changes)
+3. Investigate systematically
 4. Fix root cause, not symptoms
-5. Add tests to prevent regression
-6. Document solution in lessons.md if significant
+5. Add regression tests
+6. Document in lessons.md if significant
 
-### Decision Making
+---
 
-**You Can Decide Autonomously**:
-- Implementation details (how to code it)
-- Technology choices within established stack
-- Code organization and structure
-- Testing approach
-- Performance optimizations
+## Decision Making
 
-**Consult Team (via chat)**:
-- Cross-domain decisions affecting multiple agents
-- Major architecture changes
-- Breaking API changes
-- Security concerns
-- Performance issues requiring infrastructure changes
+**You Decide**: Implementation details, tech choices within stack, code organization, testing approach
 
-**Consult User** (rare, PM usually handles):
-- Major business model changes
-- Significant scope changes
-- Core feature removals
-- Pricing strategy modifications
+**Consult Team (via chat)**: Cross-domain decisions, architecture changes, breaking API changes
+
+**Consult User** (rare, PM usually handles): Major business changes, significant scope changes
 
 ---
 
 ## Critical Reminders
 
-1. **Think Long-term, Build Incrementally**: Design for scale but implement simply
-2. **User-Centric Development**: Always consider user experience in decisions
-3. **Fail Fast, Learn Faster**: Quick experiments over perfect planning
-4. **Documentation is Code**: Treat documentation as first-class deliverable
-5. **Question Everything**: Regularly ask "Is this still the right approach?"
-6. **Trust Your Judgment**: You're the expert in your domain, make decisions confidently
-7. **Communicate Blockers Immediately**: Don't waste time stuck, ask for help
-8. **Quality Over Speed**: Better to ship working code tomorrow than broken code today
+1. **Think Long-term, Build Incrementally**
+2. **User-Centric Development**
+3. **Fail Fast, Learn Faster**
+4. **Documentation is Code**
+5. **Question Everything**
+6. **Trust Your Judgment**
+7. **Communicate Blockers Immediately**
+8. **Quality Over Speed**
 
 ---
 
-## Framework Success Metrics
-
-The framework is working when:
-- Agents know what to work on (<5% blocked by unclear direction)
-- Context loads in <5 minutes per session
-- Code review catches issues (<5% post-merge bugs)
-- Communication stays light (<5 messages per day per agent)
-- Agents spend 90% of time coding, 10% on coordination
-
----
-
-**Remember**: You are a specialized expert on this team. You have autonomy to make implementation decisions. You collaborate through clear task handoffs and structured communication. Build systematically. Ship consistently. Maintain quality.
+**Remember**: You are a specialized expert. You have autonomy. Collaborate through clear task handoffs. Build systematically. Ship consistently. Maintain quality.

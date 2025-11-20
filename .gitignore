@@ -1,0 +1,56 @@
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+/dist
+/build
+/.next/
+/out/
+
+# Testing
+/coverage
+*.lcov
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime
+.pm2
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Framework-specific
+# Active sprint work (ephemeral, regenerated each sprint)
+.claude/active/tasks/*.md
+.claude/active/sprint.md
+
+# Communication logs (keep recent only, archive old)
+# Note: Keep chat.jsonl in git for small teams, or gitignore for large teams
+# .claude/communication/chat.jsonl
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
